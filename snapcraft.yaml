@@ -1,0 +1,66 @@
+name: engrampa-kyu
+base: core24
+version: '1.28.2'
+platforms:
+  amd64:
+    build-on: [amd64]
+    build-for: [amd64]
+summary: A file archiver for MATE
+description: |
+  A file archiver for MATE
+grade: stable
+confinement: strict
+
+apps:
+  engrampa-kyu:
+    command: usr/bin/engrampa
+    desktop: usr/share/applications/engrampa.desktop
+    extensions: [gnome]
+    environment:
+      HOME: $SNAP_REAL_HOME
+    plugs:
+      - unity7
+      - home
+      - removable-media
+      - mount-observe
+
+plugs:
+  shared-memory:
+    private: true
+
+layout:
+  /usr/lib/7zip:
+    symlink: $SNAP/usr/lib/7zip
+
+parts:
+  engrampa-app:
+    plugin: autotools
+    source: https://github.com/mate-desktop/engrampa/releases/download/v1.28.2/engrampa-1.28.2.tar.xz
+    build-packages:
+      - libcaja-extension-dev
+      - libglib2.0-dev
+      - libglib2.0-bin
+    override-build: |
+      ./configure \
+        --prefix=/usr \
+        --libexecdir="/usr/lib/engrampa" \
+        --disable-packagekit
+
+      make
+
+      make install DESTDIR=$CRAFT_PART_INSTALL
+      sed -i 's|Icon=engrampa|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/engrampa.svg|' $CRAFT_PART_INSTALL/usr/share/applications/engrampa.desktop
+      sed -i 's|TryExec=engrampa|TryExec=${SNAP}/usr/bin/engrampa|' $CRAFT_PART_INSTALL/usr/share/applications/engrampa.desktop
+      sed -i 's|Exec=engrampa %U|Exec=${SNAP}/usr/bin/engrampa %U|' $CRAFT_PART_INSTALL/usr/share/applications/engrampa.desktop
+    prime:
+      - -usr/share/help
+
+  dependencies:
+    plugin: nil
+    stage-packages: [libcaja-extension1]
+    prime: [usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/caja/extensions-2.0/*, usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcaja-extension.so*]
+
+  dependencies-2:
+    plugin: nil
+    stage-packages: [zip, rar, 7zip, tar, zstd]
+    prime: [usr/bin, usr/lib]
