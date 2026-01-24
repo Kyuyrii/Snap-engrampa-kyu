@@ -10,6 +10,7 @@ description: |
   A file archiver for MATE
 grade: stable
 confinement: strict
+icon: engrampa.svg
 
 apps:
   engrampa-kyu:
@@ -49,9 +50,6 @@ parts:
       make
 
       make install DESTDIR=$CRAFT_PART_INSTALL
-      sed -i 's|Icon=engrampa|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/engrampa.svg|' $CRAFT_PART_INSTALL/usr/share/applications/engrampa.desktop
-      sed -i 's|TryExec=engrampa|TryExec=${SNAP}/usr/bin/engrampa|' $CRAFT_PART_INSTALL/usr/share/applications/engrampa.desktop
-      sed -i 's|Exec=engrampa %U|Exec=${SNAP}/usr/bin/engrampa %U|' $CRAFT_PART_INSTALL/usr/share/applications/engrampa.desktop
     prime:
       - -usr/share/help
 
