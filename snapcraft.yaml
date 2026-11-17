@@ -1,13 +1,15 @@
 name: engrampa-kyu
-base: core24
-version: '1.28.2'
+base: core26
+version: '1.28.5'
 platforms:
   amd64:
     build-on: [amd64]
     build-for: [amd64]
-summary: A file archiver for MATE
+summary: An Archive Manager for the MATE desktop environment
 description: |
-  A file archiver for MATE
+   Engrampa is an archive manager for the MATE environment. It allows you
+   to create and modify archives, view the contents of an archive, view a
+   file contained in an archive, and extract files from archive.
 grade: stable
 confinement: strict
 icon: engrampa.svg
@@ -36,29 +38,26 @@ layout:
 parts:
   engrampa-app:
     plugin: autotools
-    source: https://github.com/mate-desktop/engrampa/releases/download/v1.28.2/engrampa-1.28.2.tar.xz
+    source: https://github.com/mate-desktop/engrampa/releases/download/v$SNAPCRAFT_PROJECT_VERSION/engrampa-$SNAPCRAFT_PROJECT_VERSION.tar.xz
     build-packages:
       - libcaja-extension-dev
       - libglib2.0-dev
       - libglib2.0-bin
-    override-build: |
-      ./configure \
-        --prefix=/usr \
-        --libexecdir="/usr/lib/engrampa" \
-        --disable-packagekit
-
-      make
-
-      make install DESTDIR=$CRAFT_PART_INSTALL
+    autotools-configure-parameters:
+      - --prefix=/usr
+      - --libexecdir="/usr/lib/engrampa"
+      - --disable-packagekit
     prime:
       - -usr/share/help
 
   dependencies:
+    after: [engrampa-app]
     plugin: nil
     stage-packages: [libcaja-extension1]
     prime: [usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/caja/extensions-2.0/*, usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcaja-extension.so*]
 
-  dependencies-2:
+  archiving-tools:
+    after: [dependencies]
     plugin: nil
     stage-packages: [zip, unzip, rar, 7zip, 7zip-rar, tar, xz-utils, zstd, rpm2cpio, gzip, bzip2, bzip3]
     prime: [usr/bin, usr/lib, usr/sbin]
